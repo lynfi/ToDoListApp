@@ -7,45 +7,67 @@ from os import path
 
 if (path.exists('./db.npz')):
     data = np.load('./db.npz', allow_pickle=True)
-    dic = data['dic'].tolist()
+    dic_date = data['date'].tolist()
+    dic_time = data['time'].tolist()
+    dic_day = data['day'].tolist()
     money = data['money']
 else:
-    dic = []
+    dic_date = []
+    dic_time = []
+    dic_day = []
     money = 0
-    np.savez('./db.npz', dic=dic, money=money)
+    np.savez('./db.npz',
+             date=dic_date,
+             time=dic_time,
+             day=dic_day,
+             money=money)
 
 
 # insert a new item into our table
 def newItem():
     global money
-    global dic
+    global dic_date, dic_time, dic_day
     # get current time
     date_time = datetime.datetime.now()
     date = date_time.date()  # gives sdate
     time = date_time.time()  # gives times
-    print(time)
-    if ((not date in dic) and time <= datetime.time(8, 30)):
-        print(time)
-        dic.append(date)
-        money += 5
-        if time <= datetime.time(8, 0):
-            money += 10
-        check = True
-        # add $100 if wake up before 8am for 7 days in a row
-        for i in range(1, 7):
-            pastDate = date - datetime.timedelta(days=i)
-            if (not pastDate in dic):
-                check = False
-                break
-        if check:
-            money += 100
-    np.savez('db.npz', dic=dic, money=money)
+    if not date in dic_date:
+        dic_date.append(date)
+        dic_time.append(time)
+        if time <= datetime.time(8, 30):
+            money += 5
+            if time <= datetime.time(8, 0):
+                money += 10
+            check = True
+            # add $100 if wake up before 8am for 7 days in a row
+            for i in range(1, 7):
+                pastDate = date - datetime.timedelta(days=i)
+                if (not pastDate in dic_day):
+                    check = False
+                    break
+            if check:
+                money += 100
+                dic_day = []
+            else:
+                dic_day.append(date)
+        else:
+            dic_day = []
+
+    np.savez('./db.npz',
+             date=dic_date,
+             time=dic_time,
+             day=dic_day,
+             money=money)
 
 
 def useItem(item):
     global money
     money -= item
-    np.savez('db.npz', dic=dic, money=money)
+    np.savez('./db.npz',
+             date=dic_date,
+             time=dic_time,
+             day=dic_day,
+             money=money)
 
 
 class Todo(tkinter.Tk):
@@ -72,12 +94,18 @@ class Todo(tkinter.Tk):
     def refreshList(self):
         self.todoList.insert(tkinter.END, "money: " + str(money))
         self.todoList.update_idletasks()
-        l = min(len(dic), 7)
+        l = min(len(dic_date), 7)
         for i in range(l):
-            date = dic[l - 1 - i]
-            curTime = str(date.day) + '/' + str(date.month) + '/' + str(
+            date = dic_date[l - 1 - i]
+            time = dic_time[l - 1 - i]
+            curDate = str(date.day) + '/' + str(date.month) + '/' + str(
                 date.year)
-            item = curTime + " Succeed!"
+            curTime = str(time.hour) + ':' + str(time.minute)
+            item = curDate + " " + curTime
+            if time < datetime.time(8, 30):
+                item += " Succeed!"
+            else:
+                item += " Failed."
             self.todoList.insert(tkinter.END, str(item))
             self.todoList.update_idletasks()
 
