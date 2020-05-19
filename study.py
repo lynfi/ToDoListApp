@@ -35,9 +35,7 @@ def newItem(item):
         dic_time.append(item)
         if item >= 5:
             # add $10 if study more than 5 hours, $15 if more than 6 hours
-            money += 10
-            if item >= 6:
-                money += 5
+            money += 10 + (item - 5) * 5
             check = True
             # add $100 if study more than 5 hours for 7 days in a row
             for i in range(1, 7):
@@ -73,7 +71,7 @@ def useItem(item):
 class Todo(tkinter.Tk):
     def __init__(self):
         tkinter.Tk.__init__(self)
-        self.title("WakeUp")
+        self.title("Study")
 
         self.todoList = tkinter.Listbox()
         self.todoList.pack(fill=tkinter.BOTH, expand=0)

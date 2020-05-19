@@ -13,5 +13,5 @@ The tasks will appear everyday, and a check-in before 8am will be eligible for r
 study.py is another task, which forces myself to study hard.
 
 # Study Rewards
-* Study more than 5 hours (+$10), or (+$15) if more than 6 hours
-* Complete 7 consecutive days' tasks. (+$100)
+* Everydays' reward: $10 if study more than 5 hours and $5 for every extra hour.
+* Study more than 5 hours for 7 days in a row. (+$100)
